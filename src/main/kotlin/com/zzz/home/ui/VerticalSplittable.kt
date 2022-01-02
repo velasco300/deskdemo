@@ -1,4 +1,4 @@
-package com.zzz.ui
+package com.zzz.home.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.Orientation

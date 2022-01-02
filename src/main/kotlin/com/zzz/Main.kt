@@ -3,14 +3,13 @@ package com.zzz
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
-import com.zzz.entity.Menu
-import com.zzz.entity.Menus
-import com.zzz.ui.RootView
+import com.zzz.common.AppTheme
+import com.zzz.home.HomeViewModel
+import com.zzz.home.ui.HomeView
 
 fun main() {
     application {
@@ -26,17 +25,9 @@ fun main() {
 
 @Composable
 fun MainView() {
-
-    var m = remember {
-        var obj = Menu(0, "", 0, true, null, null)
-        obj.root = obj
-        obj
-    }
-    Menus.runinsession { Menus.flush(m) }
-
-    MaterialTheme {
+    MaterialTheme(colors = AppTheme.colors.material) {
         Surface {
-            RootView(m)
+            HomeView(HomeViewModel())
         }
     }
 }

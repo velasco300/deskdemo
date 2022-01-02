@@ -1,4 +1,4 @@
-package com.zzz.ui
+package com.zzz.home.ui
 
 import androidx.compose.animation.core.Spring.StiffnessLow
 import androidx.compose.animation.core.SpringSpec
@@ -16,10 +16,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
-import com.zzz.entity.Menu
+import com.zzz.home.HomeViewModel
+import com.zzz.util.ViewType
 
 @Composable
-fun RootView(m: Menu) {
+fun HomeView(vm: HomeViewModel) {
     val panelState = remember { PanelState() }
 
     val animatedSize = if (panelState.splitter.isResizing) {
@@ -35,11 +36,20 @@ fun RootView(m: Menu) {
         panelState.expandedSize = (panelState.expandedSize + it).coerceAtLeast(panelState.expandedSizeMin)
     }) {
         ResizablePanel(Modifier.width(animatedSize).fillMaxHeight(), panelState) {
-            MenuView(m)
+            MenuView(vm)
         }
 
         Box {
-            EmptyView()
+            if (vm.tabs.active != null) {
+                Column(Modifier.fillMaxSize()) {
+                    TabsView(vm.tabs.items)
+                    Box(Modifier.weight(1f)) {
+                        PageFactoryView(vm.tabs.active!!.body as ViewType)
+                    }
+                }
+            } else {
+                EmptyView()
+            }
         }
     }
 }

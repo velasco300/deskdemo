@@ -1,13 +1,17 @@
-package com.zzz.entity
+/*
+package com.zzz.home.domain
 
+import com.zzz.home.Menus
+import com.zzz.util.ViewType
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
 
-object Menus : Table() {
+object MenusBak : Table() {
     val id = integer("id").autoIncrement()
     val pid = integer("pid").default(0)
-    val mname = varchar("mname", 255)
+    val name = varchar("menu_name", 255)
     val isLeaf = bool("is_leaf").default(true)
+    val url = varchar("url", 255).default("")
 
     override val primaryKey = PrimaryKey(id)
 
@@ -21,8 +25,10 @@ object Menus : Table() {
 
     fun add(m: Menu) {
         insert {
-            it[mname] = m.name
+            it[name] = m.name
             it[pid] = m.parent!!.id
+            it[url] = m.url.name
+            it[isLeaf] = m.isLeaf
         }
         m.parent?.let {
             if (it.isLeaf) {
@@ -51,7 +57,8 @@ object Menus : Table() {
 
     fun modify(m: Menu) {
         update({ Menus.id eq m.id }) {
-            it[mname] = m.name
+            it[name] = m.name
+            it[url] = m.url.name
         }
         flush(m.parent!!)
     }
@@ -90,7 +97,15 @@ object Menus : Table() {
 
     private fun expand(rootNode: Menu): List<Menu> {
         return select { Menus.pid eq rootNode.id }.map { rs ->
-            Menu(rs[id], rs[mname], rootNode.level + 1, rs[isLeaf], rootNode, rootNode.root).also {
+            Menu(
+                rs[id],
+                rs[name],
+                rootNode.level + 1,
+                rs[isLeaf],
+                ViewType.valueOf(rs[url]),
+                rootNode,
+                rootNode.root
+            ).also {
                 it.children = expand(it)
             }
         }
@@ -99,7 +114,15 @@ object Menus : Table() {
     private fun getChildren(rootNode: Menu, lv: Int = 1): List<Menu> {
         var deep = lv - 1
         return select { Menus.pid eq rootNode.id }.map { rs ->
-            Menu(rs[id], rs[mname], rootNode.level + 1, rs[isLeaf], rootNode, rootNode.root).also {
+            Menu(
+                rs[id],
+                rs[name],
+                rootNode.level + 1,
+                rs[isLeaf],
+                ViewType.valueOf(rs[url]),
+                rootNode,
+                rootNode.root
+            ).also {
                 if (deep > 0) {
                     it.children = getChildren(it, deep)
                 }
@@ -109,18 +132,23 @@ object Menus : Table() {
 
     private fun dirDelete(m: Menu) {
         select { Menus.pid eq m.id }.forEach {
-            dirDelete(Menu(it[id], it[mname], m.level + 1, it[isLeaf], m, m.root))
+            dirDelete(Menu(it[id], it[name], m.level + 1, it[isLeaf], ViewType.valueOf(it[url]), m, m.root))
             deleteWhere {
                 Menus.id eq it[id]
             }
-
         }
     }
 
     private fun dirGet(m: Menu, arr: MutableList<Menu>) {
         select { Menus.id eq m.parent!!.id }.map {
             Menu(
-                it[id], it[mname], m.level - 1, it[isLeaf], Menu(it[pid], "", m.level - 2, false, null, m.root), m.root
+                it[id],
+                it[name],
+                m.level - 1,
+                it[isLeaf],
+                ViewType.valueOf(it[url]),
+                Menu(it[pid], "", m.level - 2, false, ViewType.NONE, null, m.root),
+                m.root
             )
         }.firstOrNull()?.let {
             dirGet(it, arr)
@@ -143,7 +171,15 @@ object Menus : Table() {
         println("************ ${index} ${arr[index]?.let { it.id }}")
         var deep = lv - 1
         return select { Menus.pid eq rootNode.id }.map { rs ->
-            Menu(rs[id], rs[mname], rootNode.level + 1, rs[isLeaf], rootNode, rootNode.root).also {
+            Menu(
+                rs[id],
+                rs[name],
+                rootNode.level + 1,
+                rs[isLeaf],
+                ViewType.valueOf(rs[url]),
+                rootNode,
+                rootNode.root
+            ).also {
                 if (deep > 0) {
                     var m = arr[index]
                     if (m != null) {
@@ -158,4 +194,4 @@ object Menus : Table() {
         }
     }
 
-}
+}*/
